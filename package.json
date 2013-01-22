@@ -1,0 +1,8 @@
+{
+  "name": "iracing",
+  "description": "Bindings to the iRacing SDK",
+  "version": "0.0.1",
+  "devDependencies": {
+    "node-gyp": "*"
+  }
+}
