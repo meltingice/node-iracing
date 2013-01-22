@@ -1,6 +1,9 @@
 #include <v8.h>
 #include <node.h>
 
+#include "yaml_parser.h"
+#include "irsdk_defines.h"
+
 using namespace v8;
 
 class IRacing: node::ObjectWrap {

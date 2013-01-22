@@ -2,6 +2,7 @@
   "name": "iracing",
   "description": "Bindings to the iRacing SDK",
   "version": "0.0.1",
+  "os": ["win32"],
   "devDependencies": {
     "node-gyp": "*"
   }
