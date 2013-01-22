@@ -23,7 +23,9 @@ public:
     IRacing::pft->InstanceTemplate()->SetInternalFieldCount(1);
     IRacing::pft->SetClassName(v8::String::NewSymbol("IRacing"));
 
-    target->Set(String::NewSymbol("iracing"), IRacing::pft->GetFunction());
+    NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "waitForDataReady", WaitForDataReady);
+
+    target->Set(String::NewSymbol("iRacing"), IRacing::pft->GetFunction());
   }
 
   static Handle<Value> New(const Arguments& args) {
@@ -34,6 +36,16 @@ public:
     
     return args.This();
   }
+
+  static v8::Handle<Value> WaitForDataReady(const Arguments& args) {
+    v8::HandleScope scope;
+    IRacing* inst = node::ObjectWrap::Unwrap<IRacing>(args.This());
+
+    v8::String::Utf8Value data(args[1]->ToString());
+    bool result = irsdk_waitForDataReady(args[0]->Int32Value(), *data);
+    return v8::Boolean::New(result);
+  }
+
 };
 
 v8::Persistent<FunctionTemplate> IRacing::pft;
