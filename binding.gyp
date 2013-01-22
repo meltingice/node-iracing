@@ -4,8 +4,8 @@
       "target_name": "iracing",
       "sources": [
         "src/iracing.cc",
-        "src/irsdk_utils.cpp",
-        "src/yaml_parser.cpp"
+        "lib/irsdk_utils.cpp",
+        "lib/yaml_parser.cpp"
       ]
     }
   ]
