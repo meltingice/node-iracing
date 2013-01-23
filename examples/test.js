@@ -9,7 +9,7 @@ console.log("Press Ctrl+C to quit");
 while (true) {
   if (ir.waitForDataReady(60)) {
     console.log("Connection established!");
-    console.log(ir.getDriver());
+    console.log(ir.getSession());
 
     break;
   }

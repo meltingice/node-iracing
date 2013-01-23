@@ -11,7 +11,6 @@ private:
 public:
   static char* dataStr;
   static int dataLen;
-  static const char* weekendInfoProps[];
 
   IRacing() {}
   ~IRacing() {}
@@ -118,13 +117,6 @@ public:
 Persistent<FunctionTemplate> IRacing::pft;
 char* IRacing::dataStr = NULL;
 int IRacing::dataLen = 0;
-
-const char* IRacing::weekendInfoProps[] = {
-  "TrackName",
-  "TrackID",
-  "TrackLength",
-  "SeriesID"
-};
 
 extern "C" {
   static void init (Handle<Object> target) {
