@@ -6,12 +6,13 @@
 
 using namespace v8;
 
-char *data = NULL;
-int dataLen = 0;
-
 class IRacing: node::ObjectWrap {
 private:
 public:
+  static char* dataStr;
+  static int dataLen;
+  static const char* weekendInfoProps[];
+
   IRacing() {}
   ~IRacing() {}
 
@@ -29,8 +30,9 @@ public:
     // Methods
     NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "waitForDataReady", WaitForDataReady);
     NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getHeader", GetHeader);
-    NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getTrack", GetTrack);
-    NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getCarAndDriver", GetCarAndDriver);
+    NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getSessionYAML", GetSessionYAML);
+    NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getCarIdx", GetCarIdx);
+    NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getTelemetryData", GetTelemetryData);
 
     target->Set(String::NewSymbol("iRacing"), IRacing::pft->GetFunction());
   }
@@ -46,10 +48,8 @@ public:
 
   static Handle<Value> WaitForDataReady(const Arguments& args) {
     HandleScope scope;
-    //IRacing* self = node::ObjectWrap::Unwrap<IRacing>(args.This());
 
-    String::Utf8Value data(args[1]->ToString());
-    bool result = irsdk_waitForDataReady(args[0]->Int32Value(), *data);
+    bool result = irsdk_waitForDataReady(args[0]->Int32Value(), dataStr);
     return scope.Close(Boolean::New(result));
   }
 
@@ -59,13 +59,14 @@ public:
 
     const irsdk_header *header = irsdk_getHeader();
 
-    // if (!data || dataLen != header->bufLen) {
-    //   if (data) {
-    //     delete [] data;
-    //   }
+    if (header && (!dataStr || dataLen != header->bufLen)) {
+      if (dataStr) {
+        delete [] dataStr;
+      }
 
-    //   char* data = new char[header->bufLen];
-    // }
+      dataLen = header->bufLen;
+      dataStr = new char[dataLen];
+    }
 
     Handle<Object> obj = Object::New();
     obj->Set(String::New("ver"), Int32::New(header->ver));
@@ -75,59 +76,56 @@ public:
     return scope.Close(obj);
   }
 
-  static Handle<Value> GetTrack(const Arguments& args) {
+  static Handle<Value> GetSessionYAML(const Arguments& args) {
     HandleScope scope;
 
-    const char* valueStr;
-    int valueLen;
-
-    if (parseYaml(irsdk_getSessionInfoStr(), "WeekendInfo:TrackName:", &valueStr, &valueLen)) {
-      char* track = new char[valueLen];
-      sprintf(track, "%.*s", valueLen, valueStr);
-
-      return scope.Close(String::New(track));
-    }
+    return scope.Close(String::New(irsdk_getSessionInfoStr()));
   }
 
-  static Handle<Value> GetCarAndDriver(const Arguments& args) {
+  static Handle<Value> GetCarIdx(const Arguments& args) {
     HandleScope scope;
 
     const char* valStr;
     int valLen;
-    char str[512];
 
     int carIdx = -1;
-
-    Handle<Object> obj = Object::New();
 
     // Get the car ID
     if (parseYaml(irsdk_getSessionInfoStr(), "DriverInfo:DriverCarIdx:", &valStr, &valLen)) {
       carIdx = atoi(valStr);
-      obj->Set(String::New("carIdx"), Int32::New(carIdx));
+      return scope.Close(Int32::New(carIdx));
+    }
+  }
+
+  static Handle<Value> GetTelemetryData(const Arguments& args) {
+    HandleScope scope;
+
+    String::Utf8Value propName(args[0]->ToString());
+    int offset = irsdk_varNameToOffset(*propName);
+    printf("%d, %d\n", offset, dataLen);
+
+    Local<Number> val;
+    if (strcmp(*propName, "Gear") == 0) {
+      val = Number::New(*((int *)(dataStr + offset)));
+    } else if (strcmp(*propName, "OilLevel") == 0) {
+      val = Number::New(*((float *)(dataStr + offset)));
     }
 
-    if (carIdx >= 0) {
-      sprintf_s(str, 512, "DriverInfo:Drivers:CarIdx:{%d}UserName:", carIdx);
-      if (parseYaml(irsdk_getSessionInfoStr(), str, &valStr, &valLen)) {
-        obj->Set(String::New("driverName"), String::New(valStr, valLen));
-      }
-
-      sprintf_s(str, 512, "DriverInfo:Drivers:CarIdx:{%d}CarPath:", carIdx);
-      if (parseYaml(irsdk_getSessionInfoStr(), str, &valStr, &valLen)) {
-        obj->Set(String::New("driverCar"), String::New(valStr, valLen));
-      }
-
-      sprintf_s(str, 512, "DriverInfo:Drivers:CarIdx:{%d}CarNumber:", carIdx);
-      if(parseYaml(irsdk_getSessionInfoStr(), str, &valStr, &valLen)) {
-        obj->Set(String::New("driverCarNumber"), String::New(valStr, valLen));
-      }
-    }
-
-    return scope.Close(obj);
+    return scope.Close(val);
   }
 };
 
 Persistent<FunctionTemplate> IRacing::pft;
+char* IRacing::dataStr = NULL;
+int IRacing::dataLen = 0;
+
+const char* IRacing::weekendInfoProps[] = {
+  "TrackName",
+  "TrackID",
+  "TrackLength",
+  "SeriesID"
+};
+
 extern "C" {
   static void init (Handle<Object> target) {
     IRacing::Init(target);

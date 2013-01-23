@@ -1,8 +1,18 @@
 {
   "name": "iracing",
-  "description": "Bindings to the iRacing SDK",
   "version": "0.0.1",
+  "description": "Bindings to the iRacing SDK",
+  "keywords": ["iracing", "racing", "cars", "native", "c++", "sdk"],
+  "author": {
+    "name": "Ryan LeFevre",
+    "email": "meltingice8917@gmail.com",
+    "url": "http://meltingice.net"
+  },
+  "main": "./src/index.js",
   "os": ["win32"],
+  "dependencies": {
+    "js-yaml": ">= 1.0.3"
+  },
   "devDependencies": {
     "node-gyp": "*"
   }
