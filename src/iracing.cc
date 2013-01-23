@@ -30,6 +30,7 @@ public:
     NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "waitForDataReady", WaitForDataReady);
     NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getHeader", GetHeader);
     NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getTrack", GetTrack);
+    NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getCarAndDriver", GetCarAndDriver);
 
     target->Set(String::NewSymbol("iRacing"), IRacing::pft->GetFunction());
   }
@@ -86,6 +87,43 @@ public:
 
       return scope.Close(String::New(track));
     }
+  }
+
+  static Handle<Value> GetCarAndDriver(const Arguments& args) {
+    HandleScope scope;
+
+    const char* valStr;
+    int valLen;
+    char str[512];
+
+    int carIdx = -1;
+
+    Handle<Object> obj = Object::New();
+
+    // Get the car ID
+    if (parseYaml(irsdk_getSessionInfoStr(), "DriverInfo:DriverCarIdx:", &valStr, &valLen)) {
+      carIdx = atoi(valStr);
+      obj->Set(String::New("carIdx"), Int32::New(carIdx));
+    }
+
+    if (carIdx >= 0) {
+      sprintf_s(str, 512, "DriverInfo:Drivers:CarIdx:{%d}UserName:", carIdx);
+      if (parseYaml(irsdk_getSessionInfoStr(), str, &valStr, &valLen)) {
+        obj->Set(String::New("driverName"), String::New(valStr, valLen));
+      }
+
+      sprintf_s(str, 512, "DriverInfo:Drivers:CarIdx:{%d}CarPath:", carIdx);
+      if (parseYaml(irsdk_getSessionInfoStr(), str, &valStr, &valLen)) {
+        obj->Set(String::New("driverCar"), String::New(valStr, valLen));
+      }
+
+      sprintf_s(str, 512, "DriverInfo:Drivers:CarIdx:{%d}CarNumber:", carIdx);
+      if(parseYaml(irsdk_getSessionInfoStr(), str, &valStr, &valLen)) {
+        obj->Set(String::New("driverCarNumber"), String::New(valStr, valLen));
+      }
+    }
+
+    return scope.Close(obj);
   }
 };
 

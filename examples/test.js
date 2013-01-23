@@ -11,7 +11,8 @@ while (true) {
     console.log("Connection established!");
     console.log(ir.getHeader());
     console.log(ir.getTrack());
+    console.log(ir.getCarAndDriver());
+
     break;
-    //console.log(ir.getTelemetry());
   }
 }
