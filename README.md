@@ -2,7 +2,7 @@
 
 This is a native C++ library that binds the iRacing SDK to NodeJS so that you can access it from Javascript.
 
-**This project is new and currently under heavy development.**
+**This project is new and currently under heavy development. Currently you can only read the session data.**
 
 ## Example Usage
 
@@ -16,8 +16,7 @@ var cd;
 while (true) {
   if (ir.waitForDataReady(60)) {
     console.log("Connection established");
-    cd = ir.getCarAndDriver();
-    console.log(cd.driverName + " is racing on " + ir.getTrack());
+    console.log(ir.getDriver());
     break;
   }
 }
