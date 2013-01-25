@@ -68,18 +68,8 @@ public:
 
   static Handle<Value> GetHeader(const Arguments& args) {
     HandleScope scope;
-    //IRacing* inst = node::ObjectWrap::Unwrap<IRacing>(args.This());
 
     const irsdk_header *header = irsdk_getHeader();
-
-    // if (header && (!data || dataLen != header->bufLen)) {
-    //   if (data) {
-    //     delete [] data;
-    //   }
-
-    //   dataLen = header->bufLen;
-    //   data = new char[dataLen];
-    // }
 
     Handle<Object> obj = Object::New();
     obj->Set(String::New("ver"), Int32::New(header->ver));

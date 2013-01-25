@@ -7,12 +7,12 @@ console.log("Press Ctrl+C to quit");
 iRacing.ready(function () {
   console.log(this.getDriver());
 
-  var Gear;
+  var Brake;
   this.onTick(function () {
-    var _Gear = this.getTelemetry('Gear');
-    if (_Gear !== Gear) {
-      Gear = _Gear;
-      console.log("Gear is now " + Gear);
+    var _Brake = this.getTelemetry('Brake');
+    if (_Brake !== Brake) {
+      Brake = _Brake;
+      console.log("Brake is now " + Brake);
     }
   });
 });
