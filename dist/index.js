@@ -6,6 +6,18 @@ var yaml = require('js-yaml');
 // Load the C++ bindings
 var iRacing = require('../build/Release/iracing.node').iRacing;
 
+iRacing.ready = function (cb) {
+  var ir = new iRacing();
+
+  setTimeout(function () {
+    while (true) {
+      if (this.waitForDataReady(60)) {
+        return cb.call(this);
+      }
+    }
+  }.bind(ir), 0);
+};
+
 // Helper methods
 
 iRacing.prototype.getSession = function () {

@@ -8,16 +8,11 @@ This is a native C++ library that binds the iRacing SDK to NodeJS so that you ca
 
 ``` javascript
 var iRacing = require('iracing').iRacing;
-var ir = new iRacing();
 
 console.log("Waiting for connection...");
 
-var cd;
-while (true) {
-  if (ir.waitForDataReady(60)) {
-    console.log("Connection established");
-    console.log(ir.getDriver());
-    break;
-  }
-}
+iRacing.ready(function () {
+  console.log("Connected!");
+  console.log(this.getDriver());
+});
 ```
