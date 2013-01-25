@@ -42,6 +42,10 @@ iRacing.prototype.getSession = function () {
   return this.sessionData;
 };
 
+iRacing.prototype.getCarIdx = function () {
+  return this.getSession().DriverInfo.DriverCarIdx;
+};
+
 iRacing.prototype.getDriver = function () {
   var id = this.getCarIdx();
   return this.getSession().DriverInfo.Drivers.filter(function (driver) {
