@@ -9,7 +9,7 @@ using namespace v8;
 class IRacing: node::ObjectWrap {
 private:
 public:
-  static char* dataStr;
+  static char* data;
   static int dataLen;
 
   IRacing() {}
@@ -31,7 +31,7 @@ public:
     NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getHeader", GetHeader);
     NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getSessionYAML", GetSessionYAML);
     NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getCarIdx", GetCarIdx);
-    NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getTelemetryData", GetTelemetryData);
+    NODE_SET_PROTOTYPE_METHOD(IRacing::pft, "getTelemetry", GetTelemetry);
 
     target->Set(String::NewSymbol("iRacing"), IRacing::pft->GetFunction());
   }
@@ -48,7 +48,16 @@ public:
   static Handle<Value> WaitForDataReady(const Arguments& args) {
     HandleScope scope;
 
-    bool result = irsdk_waitForDataReady(args[0]->Int32Value(), dataStr);
+    bool result = irsdk_waitForDataReady(args[0]->Int32Value(), data);
+
+    if (result) {
+      const irsdk_header *header = irsdk_getHeader();
+      dataLen = header->bufLen;
+      data = new char[dataLen];
+
+      irsdk_waitForDataReady(args[0]->Int32Value(), data);
+    }
+
     return scope.Close(Boolean::New(result));
   }
 
@@ -58,14 +67,14 @@ public:
 
     const irsdk_header *header = irsdk_getHeader();
 
-    if (header && (!dataStr || dataLen != header->bufLen)) {
-      if (dataStr) {
-        delete [] dataStr;
-      }
+    // if (header && (!data || dataLen != header->bufLen)) {
+    //   if (data) {
+    //     delete [] data;
+    //   }
 
-      dataLen = header->bufLen;
-      dataStr = new char[dataLen];
-    }
+    //   dataLen = header->bufLen;
+    //   data = new char[dataLen];
+    // }
 
     Handle<Object> obj = Object::New();
     obj->Set(String::New("ver"), Int32::New(header->ver));
@@ -96,18 +105,17 @@ public:
     }
   }
 
-  static Handle<Value> GetTelemetryData(const Arguments& args) {
+  static Handle<Value> GetTelemetry(const Arguments& args) {
     HandleScope scope;
 
     String::Utf8Value propName(args[0]->ToString());
     int offset = irsdk_varNameToOffset(*propName);
-    printf("%d, %d\n", offset, dataLen);
 
     Local<Number> val;
     if (strcmp(*propName, "Gear") == 0) {
-      val = Number::New(*((int *)(dataStr + offset)));
+      val = Number::New(*((int *)(data + offset)));
     } else if (strcmp(*propName, "OilLevel") == 0) {
-      val = Number::New(*((float *)(dataStr + offset)));
+      val = Number::New(*((float *)(data + offset)));
     }
 
     return scope.Close(val);
@@ -115,7 +123,7 @@ public:
 };
 
 Persistent<FunctionTemplate> IRacing::pft;
-char* IRacing::dataStr = NULL;
+char* IRacing::data = NULL;
 int IRacing::dataLen = 0;
 
 extern "C" {

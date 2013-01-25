@@ -5,17 +5,31 @@ var yaml = require('js-yaml');
 
 // Load the C++ bindings
 var iRacing = require('../build/Release/iracing.node').iRacing;
+iRacing.TIMEOUT = 60;
 
 iRacing.ready = function (cb) {
   var ir = new iRacing();
 
   setTimeout(function () {
     while (true) {
-      if (this.waitForDataReady(60)) {
+      if (this.waitForDataReady(iRacing.TIMEOUT)) {
         return cb.call(this);
       }
     }
   }.bind(ir), 0);
+};
+
+iRacing.prototype.onTick = function (cb) {
+  setTimeout(function () {
+    var result = true;
+
+    while(true) {
+      if (this.waitForDataReady(iRacing.TIMEOUT)) {
+        result = cb.call(this);
+        if (result === false) return;
+      }
+    }
+  }.bind(this), 0);
 };
 
 // Since YAML parsing can be an expensive overhead, we cache
