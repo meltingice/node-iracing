@@ -5,7 +5,7 @@ console.log("Waiting for connection...");
 console.log("Press Ctrl+C to quit");
 
 iRacing.ready(function () {
-  console.log(this.getDriver());
+  console.log(this.getCurrentSession());
 
   var Brake;
   this.onTick(function () {

@@ -5,8 +5,11 @@ var yaml = require('js-yaml');
 
 // Load the C++ bindings
 var iRacing = require('../build/Release/iracing.node').iRacing;
+
+// Time between data ticks in ms
 iRacing.TIMEOUT = 60;
 
+// Execute a callback once we are connected
 iRacing.ready = function (cb) {
   var ir = new iRacing();
 
@@ -19,6 +22,7 @@ iRacing.ready = function (cb) {
   }.bind(ir), 0);
 };
 
+// Execute a callback for every data tick
 iRacing.prototype.onTick = function (cb) {
   setTimeout(function () {
     var result = true;
@@ -42,15 +46,46 @@ iRacing.prototype.getSession = function () {
   return this.sessionData;
 };
 
-iRacing.prototype.getCarIdx = function () {
+iRacing.prototype.getCurrentSession = function () {
+  var sessionId = this.getSession().WeekendInfo.SessionID;
+  return this.getSessionById(sessionId);
+};
+
+iRacing.prototype.getSessionById = function (id) {
+  var sessions = this.getSession().SessionInfo.Sessions;
+
+  for (var i = 0, _len = sessions.length; i < _len; i++) {
+    if (sessions[i].SessionNum === id) {
+      return sessions[i];
+    }
+  }
+};
+
+// Get the driver's car ID
+iRacing.prototype.getCarId = function () {
   return this.getSession().DriverInfo.DriverCarIdx;
 };
 
+// Get the current driver
 iRacing.prototype.getDriver = function () {
-  var id = this.getCarIdx();
-  return this.getSession().DriverInfo.Drivers.filter(function (driver) {
-    return driver.CarIdx === id;
-  })[0];
+  return this.getDriverById(this.getCarId());
+};
+
+iRacing.prototype.getDriverById = function (id) {
+  var driver;
+  var drivers = this.getSession().DriverInfo.Drivers;
+  
+  for (var i = 0, _len = drivers.length; i < _len; i++) {
+    if (drivers[i].CarIdx === id) {
+      return drivers[i];
+    }
+  }
+  
+  return null;
+};
+
+iRacing.prototype.getSplits = function () {
+
 };
 
 // Export our iRacing object

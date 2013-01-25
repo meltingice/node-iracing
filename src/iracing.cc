@@ -218,6 +218,8 @@ public:
       return scope.Close(Boolean::New(*((bool *)(data + offset))));
 
     }
+
+    return scope.Close(Null());
   }
 };
 
