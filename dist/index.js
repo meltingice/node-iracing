@@ -18,10 +18,14 @@ iRacing.ready = function (cb) {
   }.bind(ir), 0);
 };
 
-// Helper methods
-
+// Since YAML parsing can be an expensive overhead, we cache
+// the parsed result. TODO: we need to detect when the session
+// data has changed so we can re-parse it.
 iRacing.prototype.getSession = function () {
-  return yaml.load(this.getSessionYAML());
+  if (this.sessionData) return this.sessionData;
+  this.sessionData = yaml.load(this.getSessionYAML());
+
+  return this.sessionData;
 };
 
 iRacing.prototype.getDriver = function () {
