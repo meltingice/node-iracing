@@ -1,6 +1,6 @@
 {
   "name": "iracing",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Bindings to the iRacing SDK",
   "keywords": ["iracing", "racing", "cars", "native", "c++", "sdk"],
   "author": {
@@ -8,7 +8,7 @@
     "email": "meltingice8917@gmail.com",
     "url": "http://meltingice.net"
   },
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
   "os": ["win32"],
   "dependencies": {
     "js-yaml": ">= 1.0.3"
