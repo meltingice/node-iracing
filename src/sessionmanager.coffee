@@ -8,14 +8,14 @@ module.exports = class SessionManager
   @current = null
   @weekend = null
 
-  @load: (_iRacing, data) ->
+  @load: (_iRacing, @data) ->
     iRacing = _iRacing
-    @currentSessionId = data.WeekendInfo.SessionID
+    @currentSessionId = @data.WeekendInfo.SessionID
 
-    for session in data.SessionInfo.Sessions
+    for session in @data.SessionInfo.Sessions
       @sessions[session.SessionNum] = new Session(iRacing, session)
 
     @current = @sessions[@currentSessionId]
-    @weekend = data.WeekendInfo
+    @weekend = @data.WeekendInfo
 
   @get: (id) -> @sessions[id]

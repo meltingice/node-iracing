@@ -15,5 +15,6 @@ module.exports = class CarManager
       @cars[car.CarIdx] = new Car(iRacing, car)
 
     @driverCar = @cars[@driverCarId]
+    @driverCar.setDriverInfo(data.DriverInfo)
 
   @get: (id) -> @cars[id]
