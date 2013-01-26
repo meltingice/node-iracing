@@ -3,7 +3,7 @@
     {
       "target_name": "iracing",
       "sources": [
-        "src/iracing.cc",
+        "ext/iracing.cc",
         "lib/irsdk_utils.cpp"
       ]
     }

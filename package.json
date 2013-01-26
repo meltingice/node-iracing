@@ -8,10 +8,11 @@
     "email": "meltingice8917@gmail.com",
     "url": "http://meltingice.net"
   },
-  "main": "./dist/index.js",
+  "main": "./src/index.js",
   "os": ["win32"],
   "dependencies": {
-    "js-yaml": ">= 1.0.3"
+    "js-yaml": ">= 1.0.3",
+    "coffee-script": "1.4.0"
   },
   "devDependencies": {
     "node-gyp": "*"
